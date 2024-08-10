@@ -27,6 +27,14 @@ func resourceConsulACLToken() *schema.Resource {
 		Description: "The `consul_acl_token` resource writes an ACL token into Consul.\n\n~> **NOTE:** The `consul_acl_token` resource does not save the secret ID of the generated token to the Terraform state to avoid leaking it when it is not needed. If you need to get the secret ID after creating the ACL token you can use the [`consul_acl_token_secret_id`](/docs/providers/consul/d/consul_acl_token_secret_id.html) datasource.",
 
 		Schema: map[string]*schema.Schema{
+			"secret_id": {
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Computed:    true,
+				Optional:    true,
+				Sensitive:   true,
+				Description: "The token secret id.",
+			},
 			"accessor_id": {
 				Type:        schema.TypeString,
 				ForceNew:    true,
@@ -299,6 +307,7 @@ func resourceConsulACLTokenDelete(d *schema.ResourceData, meta interface{}) erro
 
 func getToken(d *schema.ResourceData) *consulapi.ACLToken {
 	aclToken := &consulapi.ACLToken{
+		SecretID:    d.Get("secret_id").(string),
 		AccessorID:  d.Get("accessor_id").(string),
 		Description: d.Get("description").(string),
 		Local:       d.Get("local").(bool),
